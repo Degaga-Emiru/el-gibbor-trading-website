@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0B2E6B;
+  --color-premium: #D4A017;
+  --color-accent: #EAB308;
+  --color-background: #F8FAFC;
+  --color-heading: #1E293B;
+  --color-body: #64748B;
+  --color-border-gray: #E2E8F0;
+
+  --font-heading: "Poppins", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-heading);
+}
