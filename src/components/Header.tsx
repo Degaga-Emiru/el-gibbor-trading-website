@@ -17,11 +17,10 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'About Us', path: '/about' },
-    { name: 'Products', path: '/products' },
-    { name: 'Services', path: '/services' },
-    { name: 'Projects', path: '/projects' },
-    { name: 'Contact', path: '/contact' },
+    { name: 'About Us', path: '/#about' },
+    { name: 'Products', path: '/#products' },
+    { name: 'Services', path: '/#services' },
+    { name: 'Contact', path: '/#contact' },
   ];
 
   return (
@@ -34,10 +33,11 @@ const Header = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            {/* Placeholder for Logo */}
-            <div className="w-10 h-10 bg-[var(--color-primary)] rounded-md flex items-center justify-center text-white font-bold text-xl">
-              EG
-            </div>
+            <img
+              src="/images/logo.png"
+              alt="El Gibbor Trading"
+              className="h-11 w-auto object-contain"
+            />
             <div className="flex flex-col">
               <span className="text-[var(--color-primary)] font-bold text-lg leading-tight">El Gibbor</span>
               <span className="text-[var(--color-premium)] text-xs font-semibold tracking-wider uppercase">Trading PLC</span>
@@ -62,7 +62,7 @@ const Header = () => {
           {/* CTA & Mobile Toggle */}
           <div className="flex items-center gap-4">
             <a
-              href="tel:+251911000000" // Placeholder phone
+              href="tel:+251911684013"
               className="hidden md:flex items-center gap-2 bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-md font-medium text-sm transition-colors hover:bg-blue-900 shadow-sm"
             >
               <Phone size={16} />
@@ -97,7 +97,7 @@ const Header = () => {
               </Link>
             ))}
             <a
-              href="tel:+251911000000"
+              href="tel:+251911684013"
               className="flex items-center justify-center gap-2 bg-[var(--color-primary)] text-white px-5 py-3 rounded-md font-medium mt-2 w-full text-center"
             >
               <Phone size={18} />

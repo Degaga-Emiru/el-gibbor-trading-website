@@ -4,7 +4,7 @@ import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import SectionHeading from '../components/SectionHeading';
 
-const ContactUs = () => {
+const ContactUs = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -18,15 +18,17 @@ const ContactUs = () => {
   };
 
   return (
-    <div className="flex flex-col w-full">
-      <PageHeader 
-        title="Contact Us" 
-        breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Contact' }]} 
-      />
+    <div className="flex flex-col w-full" id="contact">
+      {!hideHeader && (
+        <PageHeader 
+          title="Contact Us" 
+          breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Contact' }]} 
+        />
+      )}
 
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <SectionHeading title="Get in Touch" subtitle="We'd Love to Hear From You" />
+          <SectionHeading title="Get in Touch" subtitle="If you want to work with us, need business guidance, or counsel — contact us below and we will reply" />
           
           <div className="flex flex-col lg:flex-row gap-12 mt-12">
             {/* Contact Form */}
@@ -90,8 +92,8 @@ const ContactUs = () => {
                 <div>
                   <h4 className="text-lg font-bold font-[var(--font-heading)] text-[var(--color-heading)] mb-2">Head Office</h4>
                   <p className="text-[var(--color-body)] leading-relaxed">
-                    123 Business Avenue, Bole Sub-city<br />
-                    Addis Ababa, Ethiopia
+                    Addis Ababa, 4 kilo, Gelen Building<br />
+                    2nd floor, Building No 983 Room No 213
                   </p>
                 </div>
               </div>
@@ -103,8 +105,7 @@ const ContactUs = () => {
                 <div>
                   <h4 className="text-lg font-bold font-[var(--font-heading)] text-[var(--color-heading)] mb-2">Phone</h4>
                   <p className="text-[var(--color-body)] leading-relaxed flex flex-col">
-                    <a href="tel:+251911000000" className="hover:text-[var(--color-premium)] transition-colors">+251 911 00 00 00</a>
-                    <a href="tel:+251110000000" className="hover:text-[var(--color-premium)] transition-colors">+251 110 00 00 00</a>
+                    <a href="tel:+251911684013" className="hover:text-[var(--color-premium)] transition-colors">+251 911 68 40 13</a>
                   </p>
                 </div>
               </div>
@@ -116,8 +117,7 @@ const ContactUs = () => {
                 <div>
                   <h4 className="text-lg font-bold font-[var(--font-heading)] text-[var(--color-heading)] mb-2">Email</h4>
                   <p className="text-[var(--color-body)] leading-relaxed flex flex-col">
-                    <a href="mailto:info@elgibbortrading.com" className="hover:text-[var(--color-premium)] transition-colors">info@elgibbortrading.com</a>
-                    <a href="mailto:sales@elgibbortrading.com" className="hover:text-[var(--color-premium)] transition-colors">sales@elgibbortrading.com</a>
+                    <a href="mailto:elgibbor280@gmail.com" className="hover:text-[var(--color-premium)] transition-colors">elgibbor280@gmail.com</a>
                   </p>
                 </div>
               </div>
@@ -140,11 +140,18 @@ const ContactUs = () => {
         </div>
       </section>
 
-      {/* Google Maps Embed Placeholder */}
-      <section className="h-96 w-full bg-gray-200 relative">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-gray-500 font-medium text-lg">Interactive Google Map Embed</p>
-        </div>
+      {/* Google Maps Embed — Gelen Building, Addis Ababa */}
+      <section className="w-full" style={{ height: '450px' }}>
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.317468804887!2d38.75741287479406!3d9.034777191026775!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b8fbba11a3f0d%3A0x583d3842e2974633!2zR2VsZW4gQkxERy4gfCDhjIjhiIjhipUg4YiV4YqV4Y2D!5e0!3m2!1sen!2set!4v1783670021717!5m2!1sen!2set"
+          width="100%"
+          height="450"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          title="El Gibbor Trading Office Location — Gelen Building, Addis Ababa"
+        />
       </section>
     </div>
   );

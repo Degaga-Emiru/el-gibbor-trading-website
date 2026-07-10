@@ -10,9 +10,11 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center text-[var(--color-primary)] font-bold text-xl">
-                EG
-              </div>
+              <img
+                src="/images/logo.png"
+                alt="El Gibbor Trading"
+                className="h-11 w-auto object-contain bg-white rounded-md p-1"
+              />
               <div className="flex flex-col">
                 <span className="text-white font-bold text-lg leading-tight">El Gibbor</span>
                 <span className="text-[var(--color-premium)] text-xs font-semibold tracking-wider uppercase">Trading PLC</span>
@@ -42,11 +44,16 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-6 font-[var(--font-heading)] border-b border-white/20 pb-3 inline-block">Quick Links</h3>
             <ul className="flex flex-col gap-3">
               <li><Link to="/" className="text-gray-300 hover:text-white transition-colors text-sm">Home</Link></li>
-              <li><Link to="/about" className="text-gray-300 hover:text-white transition-colors text-sm">About Us</Link></li>
-              <li><Link to="/products" className="text-gray-300 hover:text-white transition-colors text-sm">Products</Link></li>
-              <li><Link to="/services" className="text-gray-300 hover:text-white transition-colors text-sm">Services</Link></li>
+              <li><Link to="/#about" className="text-gray-300 hover:text-white transition-colors text-sm">About Us</Link></li>
+              <li><Link to="/#products" className="text-gray-300 hover:text-white transition-colors text-sm">Products</Link></li>
+              <li><Link to="/#services" className="text-gray-300 hover:text-white transition-colors text-sm">Services</Link></li>
               <li><Link to="/projects" className="text-gray-300 hover:text-white transition-colors text-sm">Projects</Link></li>
-              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors text-sm">Contact Us</Link></li>
+              <li><Link to="/gallery" className="text-gray-300 hover:text-white transition-colors text-sm">Gallery</Link></li>
+              <li><Link to="/videos" className="text-gray-300 hover:text-white transition-colors text-sm">Videos</Link></li>
+              <li><Link to="/team" className="text-gray-300 hover:text-white transition-colors text-sm">Our Team</Link></li>
+              <li><Link to="/careers" className="text-gray-300 hover:text-white transition-colors text-sm">Careers</Link></li>
+              <li><Link to="/office" className="text-gray-300 hover:text-white transition-colors text-sm">Office Info</Link></li>
+              <li><Link to="/#contact" className="text-gray-300 hover:text-white transition-colors text-sm">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -68,15 +75,15 @@ const Footer = () => {
             <ul className="flex flex-col gap-4">
               <li className="flex items-start gap-3">
                 <MapPin size={20} className="text-[var(--color-premium)] shrink-0 mt-0.5" />
-                <span className="text-gray-300 text-sm">Addis Ababa, Ethiopia<br />(Full Address Placeholder)</span>
+                <span className="text-gray-300 text-sm">Addis Ababa, 4 kilo, Gelen Building<br />2nd floor, Building No 983 Room No 213</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={20} className="text-[var(--color-premium)] shrink-0" />
-                <span className="text-gray-300 text-sm">+251 911 00 00 00<br />+251 110 00 00 00</span>
+                <span className="text-gray-300 text-sm">+251 911 68 40 13</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={20} className="text-[var(--color-premium)] shrink-0" />
-                <span className="text-gray-300 text-sm">info@elgibbortrading.com</span>
+                <span className="text-gray-300 text-sm">elgibbor280@gmail.com</span>
               </li>
             </ul>
           </div>

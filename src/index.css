@@ -23,3 +23,19 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   color: var(--color-heading);
 }
+
+/* Hero Swiper pagination dots */
+.hero-pagination .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+  border-radius: 4px;
+  transition: all 0.4s ease;
+}
+.hero-pagination .swiper-pagination-bullet-active {
+  background: #D4A017;
+  width: 28px;
+  border-radius: 4px;
+}
+

@@ -1,38 +1,61 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import Services from './pages/Services';
 import Products from './pages/Products';
+import Projects from './pages/Projects';
+import Gallery from './pages/Gallery';
+import Videos from './pages/Videos';
+import Team from './pages/Team';
+import Careers from './pages/Careers';
 import ContactUs from './pages/ContactUs';
+import OfficeInfo from './pages/OfficeInfo';
+import ProductDetails from './pages/ProductDetails';
 
-// Placeholder Pages
-const PlaceholderPage = ({ title }: { title: string }) => (
-  <div className="container mx-auto px-4 py-20 min-h-[60vh] flex flex-col items-center justify-center text-center">
-    <h1 className="text-4xl font-bold mb-4 text-[var(--color-primary)]">{title}</h1>
-    <p className="text-[var(--color-body)] max-w-2xl">
-      This page is currently under development. Content for {title} will be added here soon.
-    </p>
+const Layout = () => (
+  <div className="flex flex-col min-h-screen">
+    <Header />
+    <main className="flex-grow pt-20">
+      <Outlet />
+    </main>
+    <Footer />
   </div>
 );
 
-const App = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="about" element={<AboutUs />} />
-          <Route path="products" element={<Products />} />
-          <Route path="services" element={<Services />} />
-          <Route path="projects" element={<PlaceholderPage title="Projects" />} />
-          <Route path="contact" element={<ContactUs />} />
-          {/* We will extract these into actual page files next */}
-          <Route path="*" element={<PlaceholderPage title="404 - Page Not Found" />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
-};
+const NotFound = () => (
+  <div className="container mx-auto px-4 py-40 min-h-[60vh] flex flex-col items-center justify-center text-center">
+    <h1 className="text-8xl font-bold text-[#0B2E6B] mb-4">404</h1>
+    <p className="text-gray-500 text-xl max-w-md">Sorry, the page you are looking for does not exist.</p>
+    <a href="/" className="mt-8 inline-block bg-[#0B2E6B] text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-900 transition-colors">
+      Back to Home
+    </a>
+  </div>
+);
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: 'about', element: <AboutUs /> },
+      { path: 'products', element: <Products /> },
+      { path: 'services', element: <Services /> },
+      { path: 'projects', element: <Projects /> },
+      { path: 'gallery', element: <Gallery /> },
+      { path: 'videos', element: <Videos /> },
+      { path: 'team', element: <Team /> },
+      { path: 'careers', element: <Careers /> },
+      { path: 'contact', element: <ContactUs /> },
+      { path: 'office', element: <OfficeInfo /> },
+      { path: 'product/:id', element: <ProductDetails /> },
+      { path: '*', element: <NotFound /> },
+    ],
+  },
+]);
+
+const App = () => <RouterProvider router={router} />;
 
 export default App;

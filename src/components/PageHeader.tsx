@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface PageHeaderProps {
   title: string;
@@ -31,10 +32,10 @@ const PageHeader = ({ title, breadcrumbs }: PageHeaderProps) => {
           {breadcrumbs.map((crumb, index) => (
             <div key={crumb.name} className="flex items-center gap-2">
               {crumb.path ? (
-                <a href={crumb.path} className="hover:text-[var(--color-premium)] transition-colors">
-                  {crumb.name}
-                </a>
-              ) : (
+                    <Link to={crumb.path} className="hover:text-[var(--color-premium)] transition-colors">
+                      {crumb.name}
+                    </Link>
+                  ) : (
                 <span className="text-[var(--color-premium)]">{crumb.name}</span>
               )}
               {index < breadcrumbs.length - 1 && <span>/</span>}
