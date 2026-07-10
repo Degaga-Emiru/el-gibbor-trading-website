@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, ExternalLink } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import SectionHeading from '../components/SectionHeading';
 
@@ -140,18 +140,49 @@ const ContactUs = ({ hideHeader = false }: { hideHeader?: boolean }) => {
         </div>
       </section>
 
-      {/* Google Maps Embed — Gelen Building, Addis Ababa */}
-      <section className="w-full" style={{ height: '450px' }}>
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.317468804887!2d38.75741287479406!3d9.034777191026775!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b8fbba11a3f0d%3A0x583d3842e2974633!2zR2VsZW4gQkxERy4gfCDhjIjhiIjhipUg4YiV4YqV4Y2D!5e0!3m2!1sen!2set!4v1783670021717!5m2!1sen!2set"
-          width="100%"
-          height="450"
-          style={{ border: 0 }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="strict-origin-when-cross-origin"
-          title="El Gibbor Trading Office Location — Gelen Building, Addis Ababa"
-        />
+      {/* Google Maps Section */}
+      <section className="bg-[var(--color-background)] py-10 px-4">
+        <div className="container mx-auto max-w-5xl">
+          {/* Banner above map */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6 bg-white rounded-2xl border border-[var(--color-border-gray)] shadow-sm px-8 py-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-[var(--color-primary)] text-white rounded-full flex items-center justify-center shrink-0">
+                <MapPin size={22} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-[var(--color-heading)] font-[var(--font-heading)]">
+                  Use the map below to visit our office
+                </h3>
+                <p className="text-[var(--color-body)] text-sm mt-1">
+                  Addis Ababa, 4 Kilo, Gelen Building<br />
+                  2nd Floor, Building No. 983, Room No. 213
+                </p>
+              </div>
+            </div>
+            <a
+              href="https://www.google.com/maps/place/Gelen+BLDG./@9.0347772,38.7574129,17z/data=!3m1!4b1!4m6!3m5!1s0x164b8fbba11a3f0d:0x583d3842e2974633!8m2!3d9.0347772!4d38.7599878!16s%2Fg%2F11c5q6zg8b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[var(--color-premium)] hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-colors shadow-md hover:shadow-lg whitespace-nowrap shrink-0"
+            >
+              <ExternalLink size={16} /> Open in Google Maps
+            </a>
+          </div>
+
+          {/* Embedded map */}
+          <div className="rounded-2xl overflow-hidden shadow-xl border border-[var(--color-border-gray)]" style={{ height: '420px' }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.317468804887!2d38.75741287479406!3d9.034777191026775!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b8fbba11a3f0d%3A0x583d3842e2974633!2zR2VsZW4gQkxERy4gfCDhjIjhiIjhipUg4YiV4YqV4Y2D!5e0!3m2!1sen!2set!4v1783670021717!5m2!1sen!2set"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              title="El Gibbor Trading Office Location — Gelen Building, Addis Ababa"
+            />
+          </div>
+        </div>
       </section>
     </div>
   );
