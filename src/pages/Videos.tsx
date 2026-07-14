@@ -62,9 +62,36 @@ const videos = [
     thumbnail: 'https://images.unsplash.com/photo-1486262715619-6708146bc9a5?q=80&w=800',
     duration: '0:00'
   },
+  {
+    id: 7,
+    title: 'Sound System Setup',
+    category: 'Sound Systems',
+    youtubeId: '',
+    localUrl: '/videos/sound-system.MP4',
+    thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800',
+    duration: '0:00'
+  },
+  {
+    id: 8,
+    title: 'Sound System Demo',
+    category: 'Sound Systems',
+    youtubeId: '',
+    localUrl: '/videos/sound-system1.MP4',
+    thumbnail: 'https://images.unsplash.com/photo-1496369131669-e77144e59002?q=80&w=800',
+    duration: '0:00'
+  },
+  {
+    id: 9,
+    title: 'Tyres Showcase',
+    category: 'Products',
+    youtubeId: '',
+    localUrl: '/videos/tyres-videos.MP4',
+    thumbnail: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=800',
+    duration: '0:00'
+  },
 ];
 
-const categories = ['All', 'Company', 'Products', 'Services', 'Testimonials'];
+const categories = ['All', 'Company', 'Products', 'Services', 'Sound Systems', 'Testimonials'];
 
 const Videos = () => {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -142,9 +169,9 @@ const Videos = () => {
                     {video.category}
                   </div>
                   {/* No video notice */}
-                  {!video.youtubeId && (
+                  {!video.youtubeId && !video.localUrl && (
                     <div className="absolute bottom-3 left-3 bg-black/60 text-yellow-300 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
-                      <Video size={12} /> Add YouTube ID
+                      <Video size={12} /> Add Video URL
                     </div>
                   )}
                 </div>
@@ -194,6 +221,13 @@ const Videos = () => {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-full"
+                  />
+                ) : playing.localUrl ? (
+                  <video
+                    src={playing.localUrl}
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain bg-black"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-900 flex flex-col items-center justify-center text-center p-8 gap-4">

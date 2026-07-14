@@ -105,62 +105,68 @@ const Services = ({ hideHeader = false }: { hideHeader?: boolean }) => {
       )}
 
       {/* Intro Section with Container Images */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <SectionHeading title="What We Import" subtitle="Our Import Services" />
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-[var(--color-body)] text-lg leading-relaxed mb-8"
-            >
-              At El Gibbor Trading, we specialize in importing a wide range of high-quality products from trusted international manufacturers. Our expertise in global trade logistics ensures that every product meets the highest standards of quality and is delivered on time.
-            </motion.p>
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            {/* Text Content */}
+            <div className="w-full lg:w-1/2">
+              <SectionHeading title="What We Import" subtitle="Our Import Services" alignment="left" />
+              <motion.p
+                initial={{ opacity: 0, x: -15 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="text-[var(--color-body)] text-lg leading-relaxed mb-8"
+              >
+                At El Gibbor Trading, we specialize in importing a wide range of high-quality products from trusted international manufacturers. Our expertise in global trade logistics ensures that every product meets the highest standards of quality and is delivered on time.
+              </motion.p>
 
-            {/* Container Images Gallery */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-8 rounded-2xl overflow-hidden"
-            >
-              {containerImages.map((img, idx) => (
-                <div key={idx} className="aspect-square overflow-hidden rounded-lg">
-                  <img
-                    src={img}
-                    alt={`Shipping container ${idx + 1}`}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                  />
+              <motion.div
+                initial={{ opacity: 0, x: -15 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="bg-[var(--color-background)] rounded-2xl p-6 md:p-8 border border-[var(--color-border-gray)]"
+              >
+                <p className="text-[var(--color-heading)] font-semibold text-lg mb-4">
+                  We can import a wide range of products, including:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {['Elevators', 'Generators', 'House Finishing Materials', 'Construction Materials', 'Machinery', 'Shipping Containers', 'Sound Systems', 'And many other products'].map((item) => (
+                    <div key={item} className="flex items-center gap-2.5">
+                      <CheckCircle size={18} className="text-[var(--color-premium)] shrink-0" />
+                      <span className="text-[var(--color-heading)] font-medium text-sm">{item}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </motion.div>
+                <p className="text-[var(--color-body)] text-sm mt-5 italic">
+                  ...based on our customers' needs. If you don't see what you're looking for, just ask!
+                </p>
+              </motion.div>
+            </div>
 
+            {/* Auto-playing Video */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="bg-[var(--color-background)] rounded-2xl p-8 border border-[var(--color-border-gray)]"
+              className="w-full lg:w-1/2"
             >
-              <p className="text-[var(--color-heading)] font-semibold text-lg mb-4">
-                We can import a wide range of products, including:
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {['Elevators', 'Generators', 'House Finishing Materials', 'Construction Materials', 'Machinery', 'Shipping Containers', 'And many other products'].map((item) => (
-                  <div key={item} className="flex items-center gap-2.5">
-                    <CheckCircle size={18} className="text-[var(--color-premium)] shrink-0" />
-                    <span className="text-[var(--color-heading)] font-medium text-sm">{item}</span>
-                  </div>
-                ))}
+              <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-[var(--color-border-gray)] aspect-video relative group bg-black">
+                <video
+                  src="/videos/tyres-videos.MP4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                />
               </div>
-              <p className="text-[var(--color-body)] text-sm mt-4 italic">
-                ...based on our customers' needs. If you don't see what you're looking for, just ask!
-              </p>
             </motion.div>
           </div>
         </div>
       </section>
+
+
 
       {/* Services Horizontal Auto-Scrolling Carousel */}
       <section className="py-20 bg-[var(--color-background)]">

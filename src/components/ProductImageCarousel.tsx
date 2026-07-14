@@ -4,9 +4,10 @@ interface ProductImageCarouselProps {
   images: string[];
   alt: string;
   intervalMs?: number;
+  objectFit?: 'cover' | 'contain';
 }
 
-const ProductImageCarousel = ({ images, alt, intervalMs = 4000 }: ProductImageCarouselProps) => {
+const ProductImageCarousel = ({ images, alt, intervalMs = 4000, objectFit = 'cover' }: ProductImageCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -24,7 +25,13 @@ const ProductImageCarousel = ({ images, alt, intervalMs = 4000 }: ProductImageCa
     return () => clearInterval(timer);
   }, [goToNext, images.length, intervalMs]);
 
-  if (images.length === 0) return null;
+  if (images.length === 0) {
+    return (
+      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+        No images available
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-gray-100">
@@ -32,7 +39,7 @@ const ProductImageCarousel = ({ images, alt, intervalMs = 4000 }: ProductImageCa
       <img
         src={images[currentIndex]}
         alt={`${alt} ${currentIndex + 1}`}
-        className={`w-full h-full object-cover transition-all duration-500 ease-in-out ${
+        className={`w-full h-full object-${objectFit} transition-all duration-500 ease-in-out ${
           isTransitioning ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
         }`}
       />

@@ -48,7 +48,7 @@ export const CompanyOverview = () => (
           className="lg:w-1/2 w-full"
         >
           <div className="rounded-2xl overflow-hidden shadow-xl border-4 border-[var(--color-border-gray)] aspect-video">
-            <ProductImageCarousel images={tyreImages} alt="El Gibbor Trading Products" intervalMs={3000} />
+            <ProductImageCarousel images={tyreImages} alt="El Gibbor Trading Products" intervalMs={3000} objectFit="contain" />
           </div>
         </motion.div>
 
@@ -252,7 +252,7 @@ export const CeoMessage = () => (
             <img
               src="/images/products/BONSA CEO.png"
               alt="Bonsa Saka Tesfa — CEO of El Gibbor Trading"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
         </div>

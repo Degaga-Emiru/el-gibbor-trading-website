@@ -138,4 +138,12 @@ export const productCategories: Product[] = [
       '/images/products/conatainer5.png',
     ],
   },
+  {
+    id: 'sound-systems',
+    category: 'Sound Systems',
+    name: 'Professional Sound Systems',
+    description: 'High-quality audio equipment and sound systems for professional setups, events, and venues. Delivering crystal-clear acoustics and reliable performance.',
+    features: ['Speakers & Monitors', 'Amplifiers', 'Mixing Consoles', 'Microphones & Accessories'],
+    images: [],
+  },
 ];

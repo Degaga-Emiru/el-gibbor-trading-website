@@ -11,11 +11,6 @@ const HeroSlider = () => {
   // Local product images — tyres, cars, containers
   const slides = [
     { id: 1,  image: '/images/products/triangle1.png',   label: 'Premium Triangle Tyres' },
-    { id: 2,  image: '/images/products/triangle102.png', label: 'Heavy-Duty Truck Tyres' },
-    { id: 3,  image: '/images/products/triangle5.png',   label: 'All-Terrain Tyres' },
-    { id: 4,  image: '/images/products/triangle4.png',   label: 'Commercial Tyres' },
-    { id: 5,  image: '/images/products/triangle11.png',  label: 'Passenger Car Tyres' },
-    { id: 6,  image: '/images/products/triangle.png',    label: 'High-Performance Tyres' },
     { id: 7,  image: '/images/products/cars5.png',       label: 'Passenger & SUV Vehicles' },
     { id: 8,  image: '/images/products/cars7.png',       label: 'Commercial Vehicles' },
     { id: 9,  image: '/images/products/cars8.png',       label: 'Automobile Import & Export' },
@@ -48,9 +43,7 @@ const HeroSlider = () => {
                 <div className="relative h-full w-full overflow-hidden">
                   {/* Background image with Ken Burns zoom */}
                   <div
-                    className={`absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-out ${
-                      isActive ? 'scale-110' : 'scale-100'
-                    }`}
+                    className={`absolute inset-0 bg-contain bg-no-repeat bg-center transition-transform duration-[8000ms] ease-out`}
                     style={{ backgroundImage: `url(${slide.image})` }}
                   />
                   {/* Gradient overlays */}
@@ -92,11 +85,11 @@ const HeroSlider = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white font-[var(--font-heading)] leading-[1.1] mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white font-[var(--font-heading)] leading-[1.1] mb-6 drop-shadow-2xl"
           >
             Driving Excellence <br />
             in{' '}
-            <span className="text-[var(--color-premium)]">Import &amp; Export</span>
+            <span className="text-[var(--color-premium)] drop-shadow-lg">Import &amp; Export</span>
           </motion.h1>
 
           {/* Subheading */}
