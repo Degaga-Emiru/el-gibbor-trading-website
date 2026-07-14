@@ -85,7 +85,8 @@ const HeroSlider = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-yellow-400 font-[var(--font-heading)] leading-[1.1] mb-6 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] tracking-tight"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-[var(--font-heading)] leading-[1.1] mb-6 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] tracking-tight"
+            style={{ color: 'var(--color-premium)' }}
           >
             Driving Excellence <br />
             in{' '}
