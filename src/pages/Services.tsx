@@ -57,15 +57,7 @@ const services = [
   },
 ];
 
-// Container images for the "What We Import" banner
-const containerImages = [
-  '/images/products/conatainer1.png',
-  '/images/products/container2.png',
-  '/images/products/container3.png',
-  '/images/products/container4.png',
-  '/images/products/container6.png',
-  '/images/products/conatainer5.png',
-];
+
 
 const Services = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const [activeIdx, setActiveIdx] = useState(0);
