@@ -44,16 +44,16 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-6 font-[var(--font-heading)] border-b border-white/20 pb-3 inline-block">Quick Links</h3>
             <ul className="flex flex-col gap-3">
               <li><Link to="/" className="text-gray-300 hover:text-white transition-colors text-sm">Home</Link></li>
-              <li><Link to="/#about" className="text-gray-300 hover:text-white transition-colors text-sm">About Us</Link></li>
-              <li><Link to="/#products" className="text-gray-300 hover:text-white transition-colors text-sm">Products</Link></li>
-              <li><Link to="/#services" className="text-gray-300 hover:text-white transition-colors text-sm">Services</Link></li>
+              <li><Link to="/about" className="text-gray-300 hover:text-white transition-colors text-sm">About Us</Link></li>
+              <li><Link to="/products" className="text-gray-300 hover:text-white transition-colors text-sm">Products</Link></li>
+              <li><Link to="/services" className="text-gray-300 hover:text-white transition-colors text-sm">Services</Link></li>
               <li><Link to="/projects" className="text-gray-300 hover:text-white transition-colors text-sm">Projects</Link></li>
               <li><Link to="/gallery" className="text-gray-300 hover:text-white transition-colors text-sm">Gallery</Link></li>
               <li><Link to="/videos" className="text-gray-300 hover:text-white transition-colors text-sm">Videos</Link></li>
               <li><Link to="/team" className="text-gray-300 hover:text-white transition-colors text-sm">Our Team</Link></li>
               <li><Link to="/careers" className="text-gray-300 hover:text-white transition-colors text-sm">Careers</Link></li>
               <li><Link to="/office" className="text-gray-300 hover:text-white transition-colors text-sm">Office Info</Link></li>
-              <li><Link to="/#contact" className="text-gray-300 hover:text-white transition-colors text-sm">Contact Us</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors text-sm">Contact Us</Link></li>
             </ul>
           </div>
 
