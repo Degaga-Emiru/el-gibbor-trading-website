@@ -85,11 +85,11 @@ const HeroSlider = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white font-[var(--font-heading)] leading-[1.1] mb-6 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] tracking-tight"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-yellow-400 font-[var(--font-heading)] leading-[1.1] mb-6 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] tracking-tight"
           >
             Driving Excellence <br />
             in{' '}
-            <span className="text-[var(--color-premium)] drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">Import &amp; Export</span>
+            <span className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">Import &amp; Export</span>
           </motion.h1>
 
           {/* Subheading */}
