@@ -7,5 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   css: {
     postcss: {}
-  }
+  },
+  // Copies .htaccess into dist/ on every build for DirectAdmin/Apache hosting
+  publicDir: 'public',
 })

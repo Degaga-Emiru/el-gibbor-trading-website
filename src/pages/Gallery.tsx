@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ZoomIn } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import SectionHeading from '../components/SectionHeading';
+import { supabase } from '../lib/supabaseClient';
 
-const galleryItems = [
+interface GalleryItem {
+  id: string | number;
+  category: string;
+  src: string;
+  alt: string;
+}
+
+const staticGalleryItems: GalleryItem[] = [
   { id: 1, category: 'Tyres', src: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=800', alt: 'Commercial Truck Tyres' },
   { id: 2, category: 'Tyres', src: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800', alt: 'High Performance Tyres' },
   { id: 3, category: 'Tyres', src: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?q=80&w=800', alt: 'Passenger Tyres' },
@@ -22,11 +30,43 @@ const galleryItems = [
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-  const categories = ['All', 'Tyres', 'Vehicles', 'Spare Parts', 'Office'];
+  const [galleryList, setGalleryList] = useState<GalleryItem[]>(staticGalleryItems);
+  const [categories, setCategories] = useState<string[]>(['All', 'Tyres', 'Vehicles', 'Spare Parts', 'Office']);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const { data: dbImages, error } = await supabase
+          .from('product_images')
+          .select('*, products(name, categories(name))');
+
+        if (error) throw error;
+
+        if (dbImages && dbImages.length > 0) {
+          const mappedItems: GalleryItem[] = dbImages.map((img) => ({
+            id: img.id,
+            category: img.products?.categories?.name || 'Products',
+            src: img.url,
+            alt: img.products?.name || 'Product Media Item'
+          }));
+
+          const combined = [...mappedItems, ...staticGalleryItems];
+          setGalleryList(combined);
+
+          // Get unique categories list
+          const uniqueCats = ['All', ...Array.from(new Set(combined.map(item => item.category)))];
+          setCategories(uniqueCats);
+        }
+      } catch (err) {
+        console.error('Error fetching gallery items from Supabase:', err);
+      }
+    };
+    fetchGalleryImages();
+  }, []);
 
   const filtered = activeCategory === 'All'
-    ? galleryItems
-    : galleryItems.filter(i => i.category === activeCategory);
+    ? galleryList
+    : galleryList.filter(i => i.category === activeCategory);
 
   return (
     <div className="flex flex-col w-full">
@@ -68,7 +108,7 @@ const Gallery = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
                   className="break-inside-avoid relative overflow-hidden rounded-xl group cursor-pointer shadow-sm border border-[var(--color-border-gray)]"
-                  onClick={() => setLightboxSrc(item.src.replace('w=800', 'w=1600'))}
+                  onClick={() => setLightboxSrc(item.src)}
                 >
                   <img
                     src={item.src}
@@ -99,21 +139,17 @@ const Gallery = () => {
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
             onClick={() => setLightboxSrc(null)}
           >
-            <motion.img
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              src={lightboxSrc}
-              alt="Gallery Preview"
-              className="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
             <button
-              className="absolute top-6 right-6 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors"
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
               onClick={() => setLightboxSrc(null)}
             >
-              <X size={24} />
+              <X size={30} />
             </button>
+            <img
+              src={lightboxSrc}
+              alt="Lightbox View"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            />
           </motion.div>
         )}
       </AnimatePresence>

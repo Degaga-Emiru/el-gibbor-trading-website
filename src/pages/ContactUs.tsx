@@ -3,18 +3,43 @@ import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Send, ExternalLink } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import SectionHeading from '../components/SectionHeading';
+import { supabase } from '../lib/supabaseClient';
 
 const ContactUs = ({ hideHeader = false }: { hideHeader?: boolean }) => {
-  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormStatus('submitting');
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const { error } = await supabase.from('contact_messages').insert({
+        name,
+        email,
+        phone: phone || null,
+        subject,
+        message,
+      });
+
+      if (error) throw error;
+
       setFormStatus('success');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setSubject('');
+      setMessage('');
       setTimeout(() => setFormStatus('idle'), 3000);
-    }, 1500);
+    } catch (err) {
+      console.error('Error submitting contact form:', err);
+      setFormStatus('error');
+      setTimeout(() => setFormStatus('idle'), 4000);
+    }
   };
 
   return (
@@ -43,37 +68,77 @@ const ContactUs = ({ hideHeader = false }: { hideHeader?: boolean }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-[var(--color-heading)] mb-2">Full Name *</label>
-                    <input type="text" id="name" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" placeholder="John Doe" />
+                    <input 
+                      type="text" 
+                      id="name" 
+                      required 
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" 
+                      placeholder="John Doe" 
+                    />
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-[var(--color-heading)] mb-2">Email Address *</label>
-                    <input type="email" id="email" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" placeholder="john@example.com" />
+                    <input 
+                      type="email" 
+                      id="email" 
+                      required 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" 
+                      placeholder="john@example.com" 
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-[var(--color-heading)] mb-2">Phone Number</label>
-                    <input type="tel" id="phone" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" placeholder="+251 911 00 00 00" />
+                    <input 
+                      type="tel" 
+                      id="phone" 
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" 
+                      placeholder="+251 911 00 00 00" 
+                    />
                   </div>
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium text-[var(--color-heading)] mb-2">Subject *</label>
-                    <input type="text" id="subject" required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" placeholder="How can we help?" />
+                    <input 
+                      type="text" 
+                      id="subject" 
+                      required 
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all" 
+                      placeholder="How can we help?" 
+                    />
                   </div>
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-[var(--color-heading)] mb-2">Message *</label>
-                  <textarea id="message" required rows={5} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all resize-none" placeholder="Write your message here..."></textarea>
+                  <textarea 
+                    id="message" 
+                    required 
+                    rows={5} 
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none transition-all resize-none" 
+                    placeholder="Write your message here..."
+                  ></textarea>
                 </div>
                 <button 
                   type="submit" 
-                  disabled={formStatus !== 'idle'}
+                  disabled={formStatus === 'submitting'}
                   className={`w-full py-4 rounded-lg font-semibold text-white transition-all flex items-center justify-center gap-2 ${
-                    formStatus === 'success' ? 'bg-green-600' : 'bg-[var(--color-primary)] hover:bg-blue-900'
+                    formStatus === 'success' ? 'bg-green-600' : formStatus === 'error' ? 'bg-red-600' : 'bg-[var(--color-primary)] hover:bg-blue-900'
                   }`}
                 >
                   {formStatus === 'idle' && <><Send size={18} /> Send Message</>}
                   {formStatus === 'submitting' && 'Sending...'}
                   {formStatus === 'success' && 'Message Sent Successfully!'}
+                  {formStatus === 'error' && 'Failed to Send. Please Try Again.'}
                 </button>
               </form>
             </motion.div>

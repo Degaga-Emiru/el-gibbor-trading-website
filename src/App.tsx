@@ -14,6 +14,14 @@ import ContactUs from './pages/ContactUs';
 import OfficeInfo from './pages/OfficeInfo';
 import ProductDetails from './pages/ProductDetails';
 
+// Backend & Auth imports
+import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import StaffPortal from './pages/StaffPortal';
+import AdminDashboard from './pages/AdminDashboard';
+import EmployeeDashboard from './pages/EmployeeDashboard';
+
 const Layout = () => (
   <div className="flex flex-col min-h-screen">
     <Header />
@@ -54,8 +62,35 @@ const router = createBrowserRouter([
       { path: '*', element: <NotFound /> },
     ],
   },
+  {
+    path: '/staff',
+    element: <StaffPortal />,
+  },
+  {
+    path: '/admin/*',
+    element: (
+      <ProtectedRoute allowedRole="manager">
+        <AdminDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/employee/*',
+    element: (
+      <ProtectedRoute allowedRole="employee">
+        <EmployeeDashboard />
+      </ProtectedRoute>
+    ),
+  },
 ]);
 
-const App = () => <RouterProvider router={router} />;
+const App = () => (
+  <AuthProvider>
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
+  </AuthProvider>
+);
 
 export default App;
+
