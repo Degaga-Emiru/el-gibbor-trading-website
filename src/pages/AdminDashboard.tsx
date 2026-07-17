@@ -439,6 +439,21 @@ export default function AdminDashboard() {
     showToast('success', 'Employee profile removed permanently.');
   };
 
+  const deleteProduct = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    await supabase.from('products').delete().eq('id', id);
+    fetchProducts();
+    fetchStats();
+    showToast('success', 'Product deleted successfully.');
+  };
+
+  const deleteCategory = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    await supabase.from('categories').delete().eq('id', id);
+    fetchCategories();
+    showToast('success', 'Category deleted successfully.');
+  };
+
   const handleUpdateEmployeeDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEmployee) return;
@@ -534,6 +549,31 @@ export default function AdminDashboard() {
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-[9px] w-4 h-4 flex items-center justify-center font-bold">{unreadCount}</span>}
             </button>
+            {showNotificationDropdown && (
+              <div className="absolute right-0 mt-2 w-80 bg-white border border-[#E2E8F0] rounded-2xl shadow-xl z-50 overflow-hidden py-2 text-sm text-slate-800">
+                <div className="px-4 py-2 border-b border-[#E2E8F0] font-bold text-[#1E293B] flex justify-between items-center">
+                  <span>Notifications</span>
+                  <button onClick={() => setShowNotificationDropdown(false)} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
+                </div>
+                <div className="max-h-72 overflow-y-auto divide-y divide-[#E2E8F0]">
+                  {notifications.length === 0 ? (
+                    <p className="p-4 text-center text-slate-400 text-xs">No notifications yet.</p>
+                  ) : (
+                    notifications.map(n => (
+                      <div 
+                        key={n.id} 
+                        onClick={() => markNotificationRead(n.id, n.link)}
+                        className={`p-3 hover:bg-slate-50 cursor-pointer transition-colors ${!n.is_read ? 'bg-blue-50/50' : ''}`}
+                      >
+                        <p className="font-semibold text-xs text-[#1E293B]">{n.title}</p>
+                        <p className="text-[11px] text-[#64748B] mt-0.5">{n.message}</p>
+                        <span className="text-[9px] text-slate-400 mt-1 block">{new Date(n.created_at).toLocaleTimeString()}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1 focus:outline-none">
             <Menu className="h-6 w-6" />
@@ -684,17 +724,29 @@ export default function AdminDashboard() {
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fadeIn">
+            {/* Welcome Banner */}
+            <div className="bg-white border border-[#E2E8F0] p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-l-4 border-l-[#0B2E6B]">
+              <div>
+                <h2 className="text-xl font-extrabold text-[#1E293B]">Welcome back, {profile?.full_name?.split(' ')[0] || 'Manager'}! 👋</h2>
+                <p className="text-sm text-[#64748B] mt-1">Here is your business overview and latest operations metrics.</p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
               {[
-                { title: 'Total Employees', val: stats.employees, color: 'text-blue-600 bg-blue-50 border-blue-100', icon: Users },
-                { title: 'Total Products', val: stats.products, color: 'text-emerald-600 bg-emerald-50 border-emerald-100', icon: Package },
-                { title: 'Total Reports', val: stats.reports, color: 'text-violet-600 bg-violet-50 border-violet-100', icon: FileText },
-                { title: 'Pending Review', val: stats.pendingReports, color: 'text-amber-600 bg-amber-50 border-amber-100', icon: Clock },
-                { title: 'Approved Reports', val: stats.completedReports, color: 'text-rose-600 bg-rose-50 border-rose-100', icon: CheckCircle }
+                { title: 'Total Employees', val: stats.employees, color: 'text-blue-600 bg-blue-50 border-blue-100', icon: Users, tab: 'employees' },
+                { title: 'Total Products', val: stats.products, color: 'text-emerald-600 bg-emerald-50 border-emerald-100', icon: Package, tab: 'products' },
+                { title: 'Total Reports', val: stats.reports, color: 'text-violet-600 bg-violet-50 border-violet-100', icon: FileText, tab: 'reports' },
+                { title: 'Pending Review', val: stats.pendingReports, color: 'text-amber-600 bg-amber-50 border-amber-100', icon: Clock, tab: 'reports' },
+                { title: 'Approved Reports', val: stats.completedReports, color: 'text-rose-600 bg-rose-50 border-rose-100', icon: CheckCircle, tab: 'reports' }
               ].map((card, i) => {
                 const Icon = card.icon;
                 return (
-                  <div key={i} className="bg-white border rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                  <button 
+                    key={i} 
+                    onClick={() => setActiveTab(card.tab as TabType)}
+                    className="bg-white border rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-left focus:outline-none focus:ring-2 focus:ring-[#0B2E6B]"
+                  >
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-[#64748B] text-[10px] font-bold uppercase tracking-wider">{card.title}</p>
@@ -704,7 +756,7 @@ export default function AdminDashboard() {
                         <Icon className="h-5 w-5" />
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -719,7 +771,12 @@ export default function AdminDashboard() {
                 </div>
                 <div className="h-64 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-[#E2E8F0]">
                   {reports.slice(0, 7).map((rep, idx) => (
-                    <div key={idx} className="flex flex-col items-center flex-1 group relative">
+                    <div key={idx} className="flex flex-col items-center flex-1 group relative cursor-pointer">
+                      {/* Tooltip on hover */}
+                      <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap pointer-events-none z-10">
+                        {rep.profiles?.full_name || 'Staff'} ({rep.date})<br/>
+                        Priority: {rep.priority}
+                      </div>
                       <div className="w-8 bg-[#0B2E6B] rounded-t-md hover:bg-[#D4A017] transition-all" style={{ height: `${Math.min(rep.description.length / 4, 180)}px` }} />
                       <span className="text-[10px] text-[#64748B] mt-2 truncate w-14 text-center font-medium">{rep.profiles?.full_name || 'Staff'}</span>
                     </div>
@@ -727,19 +784,46 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Task Status Distribution Graph */}
+              {/* Enhanced Interactive Line Graph Simulation */}
               <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center space-x-2 mb-6">
                   <Activity className="h-5 w-5 text-[#D4A017]" />
-                  <h3 className="text-base font-bold text-[#1E293B]">Report Productivity Trends</h3>
+                  <h3 className="text-base font-bold text-[#1E293B]">Products & Enhancements Graph</h3>
                 </div>
-                <div className="h-64 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-[#E2E8F0]">
-                  {reports.map((rep, idx) => (
-                    <div key={idx} className="flex flex-col items-center flex-1 group">
-                      <div className="w-8 bg-[#D4A017] rounded-t-md hover:bg-[#0B2E6B] transition-all" style={{ height: `${rep.priority === 'high' ? 160 : rep.priority === 'medium' ? 100 : 50}px` }} />
-                      <span className="text-[10px] text-[#64748B] mt-2 truncate w-12 text-center">{rep.title.slice(0, 8)}</span>
-                    </div>
-                  )).slice(0, 7)}
+                <div className="h-64 w-full relative border-b border-l border-[#E2E8F0] pt-6 pr-4">
+                  {/* SVG Line Graph */}
+                  <svg className="absolute inset-0 h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                    <polyline
+                      fill="none"
+                      stroke="#D4A017"
+                      strokeWidth="2"
+                      points={products.slice(0, 7).map((prod, i, arr) => {
+                        const x = (i / (arr.length - 1 || 1)) * 100;
+                        const y = 100 - (Math.min(prod.price || 50, 500) / 500 * 80);
+                        return `${x},${y}`;
+                      }).join(' ')}
+                    />
+                    {products.slice(0, 7).map((prod, i, arr) => {
+                      const x = (i / (arr.length - 1 || 1)) * 100;
+                      const y = 100 - (Math.min(prod.price || 50, 500) / 500 * 80);
+                      return (
+                        <circle key={i} cx={x} cy={y} r="3" fill="#0B2E6B" className="hover:r-[5px] transition-all cursor-pointer">
+                          <title>{prod.name} - ${prod.price}</title>
+                        </circle>
+                      );
+                    })}
+                  </svg>
+                  <div className="absolute inset-0 flex items-end justify-between px-1 pointer-events-none">
+                     {products.slice(0, 7).map((prod, idx) => (
+                      <span key={idx} className="text-[9px] text-[#64748B] translate-y-6 truncate w-12 text-center pointer-events-auto cursor-help group relative">
+                        {prod.name.slice(0, 8)}
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap z-10 pointer-events-none">
+                          Count/Price: ${prod.price || 0}<br/>
+                          Category: {prod.categories?.name || 'N/A'}
+                        </div>
+                      </span>
+                     ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -795,7 +879,7 @@ export default function AdminDashboard() {
                           {prod.is_featured && <span className="inline-block bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-1">Featured</span>}
                           {prod.is_new_arrival && <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">New Arrival</span>}
                         </td>
-                        <td className="p-4 text-right space-x-2">
+                        <td className="p-4 text-right space-x-3">
                           <button
                             onClick={() => {
                               setEditingProduct(prod);
@@ -815,6 +899,12 @@ export default function AdminDashboard() {
                             className="text-blue-600 hover:text-blue-800 cursor-pointer"
                           >
                             <Edit2 className="h-4 w-4 inline" />
+                          </button>
+                          <button
+                            onClick={() => deleteProduct(prod.id)}
+                            className="text-red-500 hover:text-red-700 cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4 inline" />
                           </button>
                         </td>
                       </tr>
@@ -848,6 +938,7 @@ export default function AdminDashboard() {
                       <th className="p-4">Name</th>
                       <th className="p-4">Slug</th>
                       <th className="p-4">Description</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E8F0] text-sm text-[#1E293B]">
@@ -866,6 +957,29 @@ export default function AdminDashboard() {
                         <td className="p-4 font-semibold">{cat.name}</td>
                         <td className="p-4 text-[#64748B]">{cat.slug}</td>
                         <td className="p-4 text-[#64748B]">{cat.description || 'N/A'}</td>
+                        <td className="p-4 text-right space-x-3">
+                          <button
+                            onClick={() => {
+                              setEditingCategory(cat);
+                              setCategoryForm({
+                                name: cat.name,
+                                slug: cat.slug,
+                                description: cat.description || '',
+                                image_url: cat.image_url || ''
+                              });
+                              setIsCategoryModalOpen(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                          >
+                            <Edit2 className="h-4 w-4 inline" />
+                          </button>
+                          <button
+                            onClick={() => deleteCategory(cat.id)}
+                            className="text-red-500 hover:text-red-700 cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4 inline" />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -877,6 +991,16 @@ export default function AdminDashboard() {
 
         {/* EMPLOYEES TAB */}
         {activeTab === 'employees' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center md:hidden pb-2">
+              <button
+                onClick={() => setIsEmployeeModalOpen(true)}
+                className="flex items-center gap-2 bg-[#0B2E6B] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                <span>Add Employee</span>
+              </button>
+            </div>
           <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[700px]">
@@ -927,6 +1051,7 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+          </div>
           </div>
         )}
 

@@ -22,15 +22,31 @@ import StaffPortal from './pages/StaffPortal';
 import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 
-const Layout = () => (
-  <div className="flex flex-col min-h-screen">
-    <Header />
-    <main className="flex-grow pt-20">
-      <Outlet />
-    </main>
-    <Footer />
-  </div>
-);
+import { useEffect } from 'react';
+
+const Layout = () => {
+  // Global interceptor for Supabase Auth Magic Links & Password Recovery
+  useEffect(() => {
+    const hash = window.location.hash;
+    const search = window.location.search;
+    if (hash.includes('type=recovery') || hash.includes('type=invite') || search.includes('type=recovery')) {
+      if (!window.location.pathname.startsWith('/staff')) {
+        // If the user ended up on the home page (or elsewhere) with a recovery token, redirect to the Staff Portal
+        window.location.href = `/staff${search}${hash}`;
+      }
+    }
+  }, []);
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow pt-20">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
 
 const NotFound = () => (
   <div className="container mx-auto px-4 py-40 min-h-[60vh] flex flex-col items-center justify-center text-center">

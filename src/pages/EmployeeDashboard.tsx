@@ -296,6 +296,31 @@ export default function EmployeeDashboard() {
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-[9px] w-4 h-4 flex items-center justify-center font-bold">{unreadCount}</span>}
             </button>
+            {showNotificationDropdown && (
+              <div className="absolute right-0 mt-2 w-80 bg-white border border-[#E2E8F0] rounded-2xl shadow-xl z-50 overflow-hidden py-2 text-sm text-slate-800">
+                <div className="px-4 py-2 border-b border-[#E2E8F0] font-bold text-[#1E293B] flex justify-between items-center">
+                  <span>In-App Messages & Alerts</span>
+                  <button onClick={() => setShowNotificationDropdown(false)} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
+                </div>
+                <div className="max-h-72 overflow-y-auto divide-y divide-[#E2E8F0]">
+                  {notifications.length === 0 ? (
+                    <p className="p-4 text-center text-slate-400 text-xs">No alerts yet.</p>
+                  ) : (
+                    notifications.map(n => (
+                      <div 
+                        key={n.id} 
+                        onClick={() => markNotificationRead(n.id, n.link)}
+                        className={`p-3 hover:bg-slate-50 cursor-pointer transition-colors ${!n.is_read ? 'bg-blue-50/50' : ''}`}
+                      >
+                        <p className="font-semibold text-xs text-[#1E293B]">{n.title}</p>
+                        <p className="text-[11px] text-[#64748B] mt-0.5">{n.message}</p>
+                        <span className="text-[9px] text-slate-400 mt-1 block">{new Date(n.created_at).toLocaleTimeString()}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1 focus:outline-none">
             <Menu className="h-6 w-6" />
