@@ -10,13 +10,13 @@ import 'swiper/css/pagination';
 const HeroSlider = () => {
   // Local product images — tyres, cars, containers
   const slides = [
-    { id: 1,  image: '/images/products/triangle1.png',   label: 'Premium Triangle Tyres' },
-    { id: 7,  image: '/images/products/cars5.png',       label: 'Passenger & SUV Vehicles' },
-    { id: 8,  image: '/images/products/cars7.png',       label: 'Commercial Vehicles' },
-    { id: 9,  image: '/images/products/cars8.png',       label: 'Automobile Import & Export' },
-    { id: 10, image: '/images/products/cars9.png',       label: 'Fleet Solutions' },
+    { id: 1, image: '/images/products/trianglepng', label: 'Premium Triangle Tyres' },
+    { id: 7, image: '/images/products/cars5.png', label: 'Passenger & SUV Vehicles' },
+    { id: 8, image: '/images/products/cars7.png', label: 'Commercial Vehicles' },
+    { id: 9, image: '/images/products/cars8.png', label: 'Automobile Import & Export' },
+    { id: 10, image: '/images/products/cars9.png', label: 'Fleet Solutions' },
     { id: 11, image: '/images/products/conatainer1.png', label: 'Global Shipping & Logistics' },
-    { id: 12, image: '/images/products/container2.png',  label: 'Import & Export Containers' },
+    { id: 12, image: '/images/products/container2.png', label: 'Import & Export Containers' },
   ];
 
   return (
@@ -140,10 +140,10 @@ const HeroSlider = () => {
           >
             {[
               { label: 'Premium Tyres', link: '/product/triangle-tyres' },
-              { label: 'Automobiles',   link: '/product/cars' },
-              { label: 'Spare Parts',   link: '/product/car-spare-parts' },
-              { label: 'Machinery',     link: '/product/machinery' },
-              { label: 'Containers',    link: '/product/containers' },
+              { label: 'Automobiles', link: '/product/cars' },
+              { label: 'Spare Parts', link: '/product/car-spare-parts' },
+              { label: 'Machinery', link: '/product/machinery' },
+              { label: 'Containers', link: '/product/containers' },
             ].map((badge) => (
               <Link
                 key={badge.label}
