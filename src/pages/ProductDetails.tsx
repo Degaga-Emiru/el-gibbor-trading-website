@@ -155,26 +155,39 @@ const ProductDetails = () => {
                   </div>
                 </div>
 
-                {/* Optional Product Video Section */}
+                {/* Product Videos Showcase (Displays ALL uploaded videos) */}
                 {hasVideo && (
-                  <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 p-2 shadow-inner">
-                    <div className="flex items-center gap-2 mb-2 px-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
-                      <Play size={14} className="fill-amber-400" />
-                      <span>Product Video Showcase</span>
+                  <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 p-4 shadow-inner space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                      <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                        <Play size={14} className="fill-amber-400" />
+                        <span>Product Video Showcase ({product.videos?.length})</span>
+                      </div>
                     </div>
-                    <div className="relative aspect-video rounded-lg overflow-hidden">
-                      <video
-                        src={product.videos![0]}
-                        controls
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover"
-                      />
+                    
+                    <div className="space-y-4">
+                      {product.videos!.map((vidUrl, vidIdx) => (
+                        <div key={vidIdx} className="space-y-1">
+                          {product.videos!.length > 1 && (
+                            <p className="text-xs text-amber-300 font-semibold">Video Showcase #{vidIdx + 1}</p>
+                          )}
+                          <div className="relative aspect-video rounded-lg overflow-hidden border border-slate-800 bg-black">
+                            <video
+                              src={vidUrl}
+                              controls
+                              autoPlay={vidIdx === 0}
+                              muted={vidIdx === 0}
+                              loop
+                              playsInline
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
+
 
                 {/* Thumbnail grid */}
                 {product.images.length > 1 && (

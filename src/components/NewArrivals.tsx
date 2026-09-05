@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, MessageSquare, Play, Sparkles } from 'lucide-react';
+import { ArrowRight, MessageSquare, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import SectionHeading from './SectionHeading';
-import ProductImageCarousel from './ProductImageCarousel';
+import ProductCardMedia from './ProductCardMedia';
 import { productCategories as mockProducts, type Product } from '../data/products';
 
 export interface ExtendedProduct extends Product {
   videos?: string[];
   isNewArrival?: boolean;
 }
+
 
 const NewArrivals = () => {
   const [newArrivals, setNewArrivals] = useState<ExtendedProduct[]>([]);
@@ -113,10 +114,8 @@ const NewArrivals = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-12">
             {newArrivals.map((product, idx) => {
-              const hasVideo = product.videos && product.videos.length > 0;
-              const videoUrl = hasVideo ? product.videos![0] : null;
-
               return (
+
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 30 }}
@@ -125,35 +124,23 @@ const NewArrivals = () => {
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
                   className="bg-slate-800/80 backdrop-blur-md rounded-2xl overflow-hidden border border-slate-700/60 hover:border-amber-500/50 transition-all duration-500 shadow-xl flex flex-col group"
                 >
-                  {/* Media Header (Video or Image Carousel) */}
+                  {/* Media Header (All Videos & All Images) */}
                   <div className="h-60 overflow-hidden relative bg-black">
-                    {hasVideo && videoUrl ? (
-                      <div className="w-full h-full relative">
-                        <video
-                          src={videoUrl}
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-amber-400 text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-amber-500/30">
-                          <Play size={12} className="fill-amber-400" />
-                          <span>Video</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <ProductImageCarousel images={product.images} alt={product.name} intervalMs={2500} />
-                    )}
+                    <ProductCardMedia
+                      images={product.images}
+                      videos={product.videos}
+                      alt={product.name}
+                    />
 
-                    <div className="absolute top-3 left-3 bg-[var(--color-primary)] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
+                    <div className="absolute top-3 left-3 bg-[var(--color-primary)] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-20 pointer-events-none">
                       {product.category}
                     </div>
 
-                    <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md z-10 flex items-center gap-1">
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md z-20 pointer-events-none flex items-center gap-1">
                       <Sparkles size={11} /> New
                     </div>
                   </div>
+
 
                   {/* Body Content */}
                   <div className="p-6 flex flex-col flex-grow">

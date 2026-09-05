@@ -1,24 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, X, Info, Video } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import SectionHeading from '../components/SectionHeading';
+import { supabase } from '../lib/supabaseClient';
 
-/**
- * HOW TO ADD YOUR VIDEOS:
- * 1. Upload your videos to YouTube or Vimeo.
- * 2. Copy the YouTube Video ID from the URL.
- *    e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ → ID is "dQw4w9WgXcQ"
- * 3. Paste the ID in the `youtubeId` field below.
- * 4. Change the `title` and `category` as needed.
- * 5. Replace the `thumbnail` with your actual thumbnail URL if desired.
- */
-const videos = [
+export interface VideoItem {
+  id: string | number;
+  title: string;
+  category: string;
+  youtubeId?: string;
+  localUrl?: string;
+  thumbnail: string;
+  duration?: string;
+}
+
+const staticVideos: VideoItem[] = [
   {
     id: 1,
     title: 'Company Introduction',
     category: 'Company',
-    youtubeId: '',  // ← Paste your YouTube video ID here
+    youtubeId: '',
     thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800',
     duration: '0:00'
   },
@@ -95,10 +97,46 @@ const categories = ['All', 'Company', 'Products', 'Services', 'Sound Systems', '
 
 const Videos = () => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [playing, setPlaying] = useState<typeof videos[0] | null>(null);
+  const [allVideos, setAllVideos] = useState<VideoItem[]>(staticVideos);
+  const [playing, setPlaying] = useState<VideoItem | null>(null);
+
+  useEffect(() => {
+    const fetchDbProductVideos = async () => {
+      try {
+        const { data: dbVids, error } = await supabase
+          .from('product_videos')
+          .select('*, products(name, categories(name), product_images(url))');
+
+        if (!error && dbVids && dbVids.length > 0) {
+          const mapped: VideoItem[] = dbVids.map((v: any) => {
+            const prodName = v.products?.name || 'Product Video';
+            const catName = v.products?.categories?.name || 'Products';
+            const primaryImg = v.products?.product_images?.[0]?.url || 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=800';
+
+            return {
+              id: `db-vid-${v.id}`,
+              title: `${prodName} - Official Video`,
+              category: catName,
+              youtubeId: '',
+              localUrl: v.url,
+              thumbnail: primaryImg,
+              duration: 'Cloudinary',
+            };
+          });
+
+          setAllVideos([...mapped, ...staticVideos]);
+        }
+      } catch (err) {
+        console.error('Error fetching product videos from database:', err);
+      }
+    };
+
+    fetchDbProductVideos();
+  }, []);
 
   const filtered =
-    activeCategory === 'All' ? videos : videos.filter(v => v.category === activeCategory);
+    activeCategory === 'All' ? allVideos : allVideos.filter(v => v.category === activeCategory);
+
 
   return (
     <div className="flex flex-col w-full">
