@@ -120,7 +120,30 @@ export default function StaffPortal() {
     setLoading(true);
 
     try {
-      const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail) {
+        setError('Please enter your email address.');
+        setLoading(false);
+        return;
+      }
+
+      // Backend verification: check if account exists
+      const { data: exists, error: rpcErr } = await supabase.rpc('check_user_email_exists', {
+        p_email: trimmedEmail,
+      });
+
+      if (rpcErr) {
+        console.error('Error verifying email existence:', rpcErr);
+      }
+
+      // If user account does not exist, do NOT send reset email
+      if (exists === false) {
+        setError('Your email does not exist, sorry.');
+        setLoading(false);
+        return;
+      }
+
+      const { error: resetErr } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
         redirectTo: `${window.location.origin}/staff?type=recovery`,
       });
 
@@ -133,6 +156,7 @@ export default function StaffPortal() {
       setLoading(false);
     }
   };
+
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();

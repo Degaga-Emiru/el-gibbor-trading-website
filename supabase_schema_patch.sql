@@ -113,3 +113,14 @@ $$ language plpgsql security definer;
 create or replace trigger on_report_created
   after insert on public.reports
   for each row execute procedure public.notify_manager_on_report();
+
+-- Function to securely check if a user account with given email exists in auth.users
+create or replace function public.check_user_email_exists(p_email text)
+returns boolean as $$
+begin
+  return exists (
+    select 1 from auth.users where lower(email) = lower(trim(p_email))
+  );
+end;
+$$ language plpgsql security definer;
+

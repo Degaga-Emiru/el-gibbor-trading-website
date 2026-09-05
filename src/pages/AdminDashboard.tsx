@@ -2,14 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { uploadMediaFile } from '../lib/cloudinary';
 import { 
   LayoutDashboard, Package, FolderTree, Users, FileText, Mail, 
   LogOut, Edit2, CheckCircle, Clock, Megaphone, X, Eye, 
   BarChart3, Activity, UserPlus, Menu, Bell, ClipboardList,
-  Send, Trash2, Image as ImageIcon, Upload, Film
+  Send, Trash2, Image as ImageIcon, Upload, Film, Plus
 } from 'lucide-react';
 
+
+
 type TabType = 'overview' | 'products' | 'categories' | 'employees' | 'reports' | 'tasks' | 'announcements' | 'messages';
+
+interface MediaPreviewItem {
+  id: string;
+  file?: File;
+  url: string;
+  type: 'image' | 'video';
+  isExisting?: boolean;
+}
 
 interface StatCounts {
   employees: number;
@@ -18,6 +29,7 @@ interface StatCounts {
   pendingReports: number;
   completedReports: number;
 }
+
 
 const EL_GIBBOR_DEPARTMENTS = [
   'Sales Manager',
@@ -87,6 +99,121 @@ export default function AdminDashboard() {
   });
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
 
+  // Multi-media upload states
+  const [selectedImages, setSelectedImages] = useState<MediaPreviewItem[]>([]);
+  const [selectedVideos, setSelectedVideos] = useState<MediaPreviewItem[]>([]);
+  const [uploadStatusMsg, setUploadStatusMsg] = useState<string>('');
+
+  const handleOpenNewProductModal = () => {
+    setEditingProduct(null);
+    setProductForm({
+      name: '',
+      category_id: '',
+      description: '',
+      price: '',
+      status: 'published',
+      is_featured: false,
+      is_new_arrival: false,
+      image_url: '',
+      video_url: ''
+    });
+    setSelectedImages([]);
+    setSelectedVideos([]);
+    setIsProductModalOpen(true);
+  };
+
+  const handleOpenEditProductModal = async (prod: any) => {
+    setEditingProduct(prod);
+    setProductForm({
+      name: prod.name,
+      category_id: prod.category_id || '',
+      description: prod.description || '',
+      price: prod.price ? String(prod.price) : '',
+      status: prod.status || 'published',
+      is_featured: prod.is_featured || false,
+      is_new_arrival: prod.is_new_arrival || false,
+      image_url: prod.image_url || '',
+      video_url: ''
+    });
+
+    try {
+      const [{ data: imgs }, { data: vids }] = await Promise.all([
+        supabase.from('product_images').select('*').eq('product_id', prod.id),
+        supabase.from('product_videos').select('*').eq('product_id', prod.id),
+      ]);
+
+      if (imgs && imgs.length > 0) {
+        setSelectedImages(imgs.map((i: any) => ({ id: i.id, url: i.url, type: 'image', isExisting: true })));
+      } else if (prod.image_url) {
+        setSelectedImages([{ id: 'exist-1', url: prod.image_url, type: 'image', isExisting: true }]);
+      } else {
+        setSelectedImages([]);
+      }
+
+      if (vids && vids.length > 0) {
+        setSelectedVideos(vids.map((v: any) => ({ id: v.id, url: v.url, type: 'video', isExisting: true })));
+      } else {
+        setSelectedVideos([]);
+      }
+    } catch (e) {
+      setSelectedImages([]);
+      setSelectedVideos([]);
+    }
+
+    setIsProductModalOpen(true);
+  };
+
+  const handleAddImages = (files: FileList | File[] | null) => {
+    if (!files || files.length === 0) return;
+    const newItems: MediaPreviewItem[] = Array.from(files).map((f) => ({
+      id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      file: f,
+      url: URL.createObjectURL(f),
+      type: 'image',
+      isExisting: false,
+    }));
+    setSelectedImages((prev) => [...prev, ...newItems]);
+  };
+
+  const handleAddVideos = (files: FileList | File[] | null) => {
+    if (!files || files.length === 0) return;
+    const newItems: MediaPreviewItem[] = Array.from(files).map((f) => ({
+      id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      file: f,
+      url: URL.createObjectURL(f),
+      type: 'video',
+      isExisting: false,
+    }));
+    setSelectedVideos((prev) => [...prev, ...newItems]);
+  };
+
+  const removeImageItem = (id: string) => {
+    setSelectedImages((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const removeVideoItem = (id: string) => {
+    setSelectedVideos((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleMediaDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const imgFiles: File[] = [];
+    const vidFiles: File[] = [];
+
+    Array.from(files).forEach((f) => {
+      if (f.type.startsWith('image/')) imgFiles.push(f);
+      else if (f.type.startsWith('video/')) vidFiles.push(f);
+    });
+
+    if (imgFiles.length > 0) handleAddImages(imgFiles);
+    if (vidFiles.length > 0) handleAddVideos(vidFiles);
+  };
+
+
   const [categoryForm, setCategoryForm] = useState({ name: '', slug: '', description: '', image_url: '' });
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
 
@@ -126,7 +253,7 @@ export default function AdminDashboard() {
 
   // UI States
   const [loading, setLoading] = useState(false);
-  const [uploadingFile, setUploadingFile] = useState(false);
+
 
   useEffect(() => {
     fetchStats();
@@ -239,7 +366,7 @@ export default function AdminDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadingFile(true);
+    setLoading(true);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
@@ -264,13 +391,15 @@ export default function AdminDashboard() {
     } catch (err: any) {
       showToast('error', 'Upload failed: ' + err.message + '. Please ensure you have created a public bucket named "products-media" in Supabase Storage.');
     } finally {
-      setUploadingFile(false);
+      setLoading(false);
     }
   };
+
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setUploadStatusMsg('Saving product information...');
     try {
       const payload = {
         name: productForm.name,
@@ -293,15 +422,56 @@ export default function AdminDashboard() {
         prodId = data.id;
       }
 
-      if (productForm.image_url) {
-        if (editingProduct) {
-          await supabase.from('product_images').delete().eq('product_id', editingProduct.id);
+      // 1. Process Images (Upload new files to Cloudinary)
+      const finalImageUrls: string[] = [];
+      for (let i = 0; i < selectedImages.length; i++) {
+        const item = selectedImages[i];
+        if (item.isExisting) {
+          finalImageUrls.push(item.url);
+        } else if (item.file) {
+          setUploadStatusMsg(`Uploading image ${i + 1} of ${selectedImages.length} to Cloudinary...`);
+          const uploadedUrl = await uploadMediaFile(item.file, 'image');
+          finalImageUrls.push(uploadedUrl);
         }
-        await supabase.from('product_images').insert({
+      }
+
+      // Sync product_images in Supabase
+      if (editingProduct) {
+        await supabase.from('product_images').delete().eq('product_id', prodId);
+      }
+
+      if (finalImageUrls.length > 0) {
+        const imageRows = finalImageUrls.map((url, idx) => ({
           product_id: prodId,
-          url: productForm.image_url,
-          is_primary: true
-        });
+          url: url,
+          is_primary: idx === 0,
+        }));
+        await supabase.from('product_images').insert(imageRows);
+      }
+
+      // 2. Process Videos (Upload new video files to Cloudinary)
+      const finalVideoUrls: string[] = [];
+      for (let i = 0; i < selectedVideos.length; i++) {
+        const item = selectedVideos[i];
+        if (item.isExisting) {
+          finalVideoUrls.push(item.url);
+        } else if (item.file) {
+          setUploadStatusMsg(`Uploading video ${i + 1} of ${selectedVideos.length} to Cloudinary...`);
+          const uploadedUrl = await uploadMediaFile(item.file, 'video');
+          finalVideoUrls.push(uploadedUrl);
+        }
+      }
+
+      if (editingProduct) {
+        await supabase.from('product_videos').delete().eq('product_id', prodId);
+      }
+
+      if (finalVideoUrls.length > 0) {
+        const videoRows = finalVideoUrls.map((url) => ({
+          product_id: prodId,
+          url: url,
+        }));
+        await supabase.from('product_videos').insert(videoRows);
       }
 
       setProductForm({
@@ -315,17 +485,22 @@ export default function AdminDashboard() {
         image_url: '',
         video_url: ''
       });
+      setSelectedImages([]);
+      setSelectedVideos([]);
       setEditingProduct(null);
       setIsProductModalOpen(false);
       fetchProducts();
       fetchStats();
-      showToast('success', 'Product inventory updated successfully!');
+      showToast('success', 'Product and Cloudinary media uploaded successfully!');
     } catch (err: any) {
-      showToast('error', err.message);
+      console.error('Product submit error:', err);
+      showToast('error', err.message || 'Error saving product');
     } finally {
       setLoading(false);
+      setUploadStatusMsg('');
     }
   };
+
 
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -691,13 +866,14 @@ export default function AdminDashboard() {
 
             {activeTab === 'products' && (
               <button
-                onClick={() => setIsProductModalOpen(true)}
+                onClick={handleOpenNewProductModal}
                 className="flex items-center gap-2 bg-[#0B2E6B] hover:bg-blue-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md cursor-pointer"
               >
                 <Upload className="h-4 w-4" />
                 <span>Add New Product</span>
               </button>
             )}
+
 
             {activeTab === 'categories' && (
               <button
@@ -835,7 +1011,7 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center md:hidden pb-2">
               <button
-                onClick={() => setIsProductModalOpen(true)}
+                onClick={handleOpenNewProductModal}
                 className="flex items-center gap-2 bg-[#0B2E6B] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer"
               >
                 <Upload className="h-3.5 w-3.5" />
@@ -881,25 +1057,12 @@ export default function AdminDashboard() {
                         </td>
                         <td className="p-4 text-right space-x-3">
                           <button
-                            onClick={() => {
-                              setEditingProduct(prod);
-                              setProductForm({
-                                name: prod.name,
-                                category_id: prod.category_id || '',
-                                description: prod.description || '',
-                                price: prod.price || '',
-                                status: prod.status,
-                                is_featured: prod.is_featured,
-                                is_new_arrival: prod.is_new_arrival,
-                                image_url: prod.image_url || '',
-                                video_url: ''
-                              });
-                              setIsProductModalOpen(true);
-                            }}
+                            onClick={() => handleOpenEditProductModal(prod)}
                             className="text-blue-600 hover:text-blue-800 cursor-pointer"
                           >
                             <Edit2 className="h-4 w-4 inline" />
                           </button>
+
                           <button
                             onClick={() => deleteProduct(prod.id)}
                             className="text-red-500 hover:text-red-700 cursor-pointer"
@@ -1402,14 +1565,16 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* POPUP MODAL: Add New Product */}
+      {/* POPUP MODAL: Add / Edit Product with Cloudinary Multi-Media Upload */}
       {isProductModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white border border-[#E2E8F0] max-w-lg w-full rounded-2xl shadow-2xl p-6 relative overflow-hidden max-h-[90vh] overflow-y-auto">
+          <div className="bg-white border border-[#E2E8F0] max-w-2xl w-full rounded-2xl shadow-2xl p-6 relative overflow-hidden max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => {
                 setIsProductModalOpen(false);
                 setEditingProduct(null);
+                setSelectedImages([]);
+                setSelectedVideos([]);
                 setProductForm({ name: '', category_id: '', description: '', price: '', status: 'published', is_featured: false, is_new_arrival: false, image_url: '', video_url: '' });
               }}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
@@ -1420,7 +1585,7 @@ export default function AdminDashboard() {
               <Package className="h-6 w-6" />
               <h3 className="text-lg font-bold text-[#1E293B]">{editingProduct ? 'Edit Product' : 'Add New Product'}</h3>
             </div>
-            <form onSubmit={handleProductSubmit} className="space-y-4">
+            <form onSubmit={handleProductSubmit} className="space-y-5">
               <div>
                 <label className="block text-xs font-semibold text-[#1E293B] mb-1">Product Name *</label>
                 <input
@@ -1466,94 +1631,160 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              {/* Upload Dropzones */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Product Image *</label>
-                  {productForm.image_url ? (
-                    <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-[#E2E8F0] group shadow-inner">
-                      <img src={productForm.image_url} alt="preview" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => setProductForm(prev => ({ ...prev, image_url: '' }))}
-                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] rounded-xl p-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <Upload className="h-6 w-6 text-slate-400 mb-1" />
-                      <span className="text-[10px] text-slate-600 font-bold">Upload Image</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        required={!editingProduct}
-                        onChange={(e) => handleMediaUpload(e, 'image_url')}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Product Video (Optional)</label>
-                  {productForm.video_url ? (
-                    <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-[#E2E8F0] group shadow-inner">
-                      <video src={productForm.video_url} className="w-full h-full object-cover" controls />
-                      <button
-                        type="button"
-                        onClick={() => setProductForm(prev => ({ ...prev, video_url: '' }))}
-                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition-colors"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#E2E8F0] rounded-xl p-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                      <Film className="h-6 w-6 text-slate-400 mb-1" />
-                      <span className="text-[10px] text-slate-600 font-bold">Upload Video</span>
-                      <input
-                        type="file"
-                        accept="video/*"
-                        onChange={(e) => handleMediaUpload(e, 'video_url')}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+              {/* Media Drag and Drop Zone */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1E293B] mb-1">Media Drag &amp; Drop Zone (Cloudinary)</label>
+                <div
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onDrop={handleMediaDrop}
+                  className="border-2 border-dashed border-[#E2E8F0] hover:border-[var(--color-primary)] rounded-xl p-5 text-center bg-slate-50 hover:bg-blue-50/50 transition-colors cursor-pointer"
+                >
+                  <div className="flex justify-center items-center gap-3 text-slate-400 mb-2">
+                    <ImageIcon size={24} />
+                    <Film size={24} />
+                  </div>
+                  <p className="text-xs font-bold text-slate-700">Drag &amp; Drop Product Images or Videos Here</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Supports multiple image and video files simultaneously</p>
                 </div>
               </div>
 
-              <div className="flex space-x-6">
-                <label className="flex items-center space-x-2 text-xs text-[#1E293B] font-semibold">
+              {/* Product Images Section */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#1E293B]">
+                    <ImageIcon size={16} className="text-[var(--color-primary)]" />
+                    <span>Product Images *</span>
+                    <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold">
+                      {selectedImages.length} {selectedImages.length === 1 ? 'image' : 'images'}
+                    </span>
+                  </div>
+                  <label className="inline-flex items-center gap-1.5 bg-[var(--color-primary)] hover:bg-blue-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm cursor-pointer transition-colors">
+                    <Plus size={14} />
+                    <span>Add More Images</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => handleAddImages(e.target.files)}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {selectedImages.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic text-center py-4 border border-dashed border-slate-200 rounded-lg bg-white">
+                    No images selected. Click "Add More Images" above or drag files into the zone.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {selectedImages.map((img, idx) => (
+                      <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-white group shadow-sm">
+                        <img src={img.url} alt={`preview ${idx + 1}`} className="w-full h-full object-cover" />
+                        {idx === 0 && (
+                          <span className="absolute top-1 left-1 bg-amber-500 text-slate-950 font-extrabold text-[9px] px-1.5 py-0.5 rounded shadow">
+                            Primary
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImageItem(img.id)}
+                          className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow transition-colors"
+                          title="Remove Image"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Product Videos Section (Optional) */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#1E293B]">
+                    <Film size={16} className="text-amber-500" />
+                    <span>Product Videos (Optional)</span>
+                    <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
+                      {selectedVideos.length} {selectedVideos.length === 1 ? 'video' : 'videos'}
+                    </span>
+                  </div>
+                  <label className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm cursor-pointer transition-colors">
+                    <Plus size={14} />
+                    <span>Add More Videos</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="video/*"
+                      onChange={(e) => handleAddVideos(e.target.files)}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {selectedVideos.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic text-center py-4 border border-dashed border-slate-200 rounded-lg bg-white">
+                    No videos attached. (Videos are optional).
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {selectedVideos.map((vid) => (
+                      <div key={vid.id} className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-black group shadow-sm">
+                        <video src={vid.url} className="w-full h-full object-cover" muted />
+                        <button
+                          type="button"
+                          onClick={() => removeVideoItem(vid.id)}
+                          className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow transition-colors z-10"
+                          title="Remove Video"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex space-x-6 pt-1">
+                <label className="flex items-center space-x-2 text-xs text-[#1E293B] font-semibold cursor-pointer">
                   <input
                     type="checkbox"
                     checked={productForm.is_featured}
                     onChange={(e) => setProductForm({...productForm, is_featured: e.target.checked})}
+                    className="rounded text-[var(--color-primary)]"
                   />
                   <span>Featured Product</span>
                 </label>
-                <label className="flex items-center space-x-2 text-xs text-[#1E293B] font-semibold">
+                <label className="flex items-center space-x-2 text-xs text-[#1E293B] font-semibold cursor-pointer">
                   <input
                     type="checkbox"
                     checked={productForm.is_new_arrival}
                     onChange={(e) => setProductForm({...productForm, is_new_arrival: e.target.checked})}
+                    className="rounded text-[var(--color-primary)]"
                   />
                   <span>New Arrival</span>
                 </label>
               </div>
 
+              {uploadStatusMsg && (
+                <div className="text-xs font-semibold text-[var(--color-primary)] bg-blue-50 border border-blue-200 rounded-lg p-2.5 flex items-center gap-2 animate-pulse">
+                  <div className="w-3.5 h-3.5 border-2 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span>{uploadStatusMsg}</span>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={loading || uploadingFile}
-                className="w-full bg-[#0B2E6B] hover:bg-blue-900 text-white py-3 rounded-xl font-bold text-sm shadow-lg disabled:opacity-50"
+                disabled={loading}
+                className="w-full bg-[#0B2E6B] hover:bg-blue-900 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg disabled:opacity-50 transition-all cursor-pointer mt-2"
               >
-                {loading ? 'Saving...' : editingProduct ? 'Update Product' : 'Add Product'}
+                {loading ? (uploadStatusMsg || 'Saving Product...') : editingProduct ? 'Update Product Media & Catalog' : 'Add Product with Cloudinary Media'}
               </button>
             </form>
           </div>
         </div>
       )}
+
 
       {/* POPUP MODAL: Add New Category */}
       {isCategoryModalOpen && (

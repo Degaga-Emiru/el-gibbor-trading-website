@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Send, ExternalLink } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
@@ -6,12 +7,21 @@ import SectionHeading from '../components/SectionHeading';
 import { supabase } from '../lib/supabaseClient';
 
 const ContactUs = ({ hideHeader = false }: { hideHeader?: boolean }) => {
+  const [searchParams] = useSearchParams();
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const productName = searchParams.get('product');
+    if (productName) {
+      setSubject(`Inquiry regarding ${productName}`);
+      setMessage(`Hello El Gibbor Trading team,\n\nI am interested in acquiring more information and pricing details for your product: "${productName}". Please contact me back with available options.`);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
